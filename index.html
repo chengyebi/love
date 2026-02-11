@@ -3,247 +3,365 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Our Time | 我们的故事</title>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
+    <title>Entangled Souls</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Noto+Serif+SC:wght@300;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* 全局重置 */
+        /* === 核心样式 === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             overflow: hidden;
-            background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); /* 深邃星空色 */
+            background-color: #050505; /* 极深的黑灰色，比纯黑更有质感 */
             font-family: 'Noto Serif SC', serif;
-            color: #ffffff;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            position: relative;
+            user-select: none;
         }
 
-        /* Canvas 背景层 */
-        #canvas-bg {
+        /* 画布全屏 */
+        canvas {
             position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-        }
-
-        /* 主卡片：极简磨砂玻璃 */
-        .card {
-            position: relative;
+            top: 0; left: 0;
             z-index: 1;
-            background: rgba(255, 255, 255, 0.05); /* 极低透明度 */
-            backdrop-filter: blur(20px); /* 强力模糊 */
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 24px;
-            padding: 50px 40px;
+        }
+
+        /* === 内容容器 === */
+        .content-layer {
+            position: relative;
+            z-index: 10;
             text-align: center;
-            box-shadow: 0 25px 45px rgba(0,0,0,0.2);
-            width: 90%;
-            max-width: 420px;
-            transition: transform 0.3s ease;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex; /* 使用 Flex 布局 */
+            flex-direction: column;
+            align-items: center;
+            opacity: 0; /* 初始完全隐藏 */
+            transform: scale(0.95);
+            transition: opacity 3s ease, transform 3s ease; /* 极慢的浮现动画 */
         }
 
-        /* 标题设计 */
-        h1 {
-            font-family: 'Playfair Display', serif;
-            font-size: 32px;
-            font-style: italic;
-            margin-bottom: 10px;
-            letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(255,255,255,0.3);
+        /* 激活状态：动画结束后添加此 class */
+        .content-layer.active {
+            opacity: 1;
+            transform: scale(1);
         }
 
-        .subtitle {
-            font-size: 12px;
-            letter-spacing: 2px;
+        /* 文字特效 */
+        .title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5em; /* 手机适配 */
+            letter-spacing: 8px;
             text-transform: uppercase;
-            opacity: 0.7;
-            margin-bottom: 40px;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.4);
+            margin-bottom: 15px;
+            background: linear-gradient(to right, #fff, #a5b4fc, #fff);
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .quote {
+            font-style: italic;
+            font-size: 1.1em;
+            color: #888;
+            margin-bottom: 50px;
+            letter-spacing: 2px;
+            border-top: 1px solid rgba(255,255,255,0.2);
             border-bottom: 1px solid rgba(255,255,255,0.2);
-            display: inline-block;
-            padding-bottom: 5px;
+            padding: 10px 30px;
         }
 
-        /* 心跳动画 */
-        .heart-icon {
-            font-size: 40px;
-            color: #ff7675;
-            margin-bottom: 30px;
-            display: inline-block;
-            filter: drop-shadow(0 0 20px rgba(255, 118, 117, 0.6));
-            animation: breathe 2s infinite ease-in-out;
-        }
-
-        @keyframes breathe {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.1); opacity: 1; }
-        }
-
-        /* 计时器网格布局 */
+        /* 计时器设计 */
         .timer-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
+            gap: 20px;
         }
 
         .timer-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(5px);
+            padding: 15px 10px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            min-width: 70px;
         }
 
-        .timer-number {
-            font-family: 'Playfair Display', serif; /* 数字用衬线体更优雅 */
-            font-size: 36px;
+        .timer-val {
+            font-size: 2em;
+            font-family: 'Cinzel', serif;
             font-weight: 700;
-            background: -webkit-linear-gradient(#fff, #a8c0ff);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);
         }
 
         .timer-label {
-            font-size: 10px;
-            opacity: 0.6;
+            font-size: 0.7em;
+            letter-spacing: 2px;
+            color: #666;
             margin-top: 5px;
-            font-weight: 300;
+            text-transform: uppercase;
         }
 
-        /* 底部署名 */
-        .footer {
-            margin-top: 40px;
-            font-size: 12px;
-            opacity: 0.4;
-            font-family: sans-serif;
-            letter-spacing: 1px;
+        /* 响应式调整 */
+        @media (min-width: 768px) {
+            .title { font-size: 4em; }
+            .timer-grid { gap: 40px; }
+            .timer-item { min-width: 100px; padding: 20px; }
+            .timer-val { font-size: 3em; }
         }
 
     </style>
 </head>
 <body>
 
-    <canvas id="canvas-bg"></canvas>
+    <canvas id="canvas"></canvas>
 
-    <div class="card">
-        <div class="heart-icon">❤</div>
-        <h1>Loving You</h1>
-        <div class="subtitle">SINCE 2025.08.06</div>
-
-        <div class="timer-grid" id="timer">
+    <div class="content-layer" id="content">
+        <div class="title">Entangled</div>
+        <div class="quote">“因为，不想分离。”</div>
+        
+        <div class="timer-grid" id="timer-display">
             </div>
-
-        <div class="footer">Created by your Boyfriend</div>
     </div>
 
     <script>
-        // ================= 配置区域 =================
-        const START_DATE = '2025-08-06T13:55:00'; 
-        // ===========================================
+        // ================= 配置区 =================
+        const CONFIG = {
+            // 【请修改】你的相识时间
+            startDate: '2025-08-06T13:55:00', 
+            
+            // 颜色配置 (使用 hex 或 rgba)
+            colors: {
+                orbit1: 'rgba(0, 210, 255, 0.8)',   // 蓝色星云
+                orbit2: 'rgba(255, 75, 139, 0.8)',  // 粉色星云
+                bgStars: 'rgba(255, 255, 255, 0.6)' // 背景星光
+            }
+        };
+        // =========================================
 
-        // 1. 计时器逻辑
+
+        // --- 画布系统 ---
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let animationPhase = 'approaching'; // approaching -> merging -> exploding -> settled
+
+        // 调整大小
+        function resize() {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resize);
+        resize();
+
+        // --- 粒子类 ---
+        class Particle {
+            constructor(type) {
+                this.type = type; // 'orb1', 'orb2', 'explosion', 'star'
+                this.init();
+            }
+
+            init() {
+                // 根据类型初始化不同的属性
+                if (this.type === 'orb1' || this.type === 'orb2') {
+                    // 星云粒子
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.radius = Math.random() * 100; // 初始云团半径
+                    this.speed = Math.random() * 0.05 + 0.02;
+                    this.size = Math.random() * 2 + 1;
+                    
+                    // 初始中心位置 (屏幕两侧)
+                    if (this.type === 'orb1') {
+                        this.centerX = width * 0.2; 
+                        this.centerY = height * 0.5;
+                        this.color = CONFIG.colors.orbit1;
+                    } else {
+                        this.centerX = width * 0.8; 
+                        this.centerY = height * 0.5;
+                        this.color = CONFIG.colors.orbit2;
+                    }
+                } 
+                else if (this.type === 'explosion') {
+                    // 爆炸碎片
+                    this.x = width / 2;
+                    this.y = height / 2;
+                    this.angle = Math.random() * Math.PI * 2;
+                    this.velocity = Math.random() * 15 + 2; // 爆发速度
+                    this.friction = 0.95; // 摩擦力
+                    this.size = Math.random() * 4 + 1;
+                    this.life = 1.0; // 透明度生命值
+                    this.color = Math.random() > 0.5 ? CONFIG.colors.orbit1 : CONFIG.colors.orbit2;
+                }
+                else if (this.type === 'star') {
+                    // 背景静止恒星
+                    this.x = Math.random() * width;
+                    this.y = Math.random() * height;
+                    this.size = Math.random() * 1.5;
+                    this.blinkSpeed = Math.random() * 0.05;
+                    this.alpha = Math.random();
+                }
+            }
+
+            update(progress) {
+                // --- 阶段1：互相靠近 (0% - 100% progress) ---
+                if (animationPhase === 'approaching') {
+                    // 计算两个中心的当前位置 (线性插值向中心移动)
+                    let currentCenterX, currentCenterY;
+                    
+                    if (this.type === 'orb1') {
+                        currentCenterX = (width * 0.2) + (width * 0.3 * progress); // 从 0.2 移到 0.5
+                    } else if (this.type === 'orb2') {
+                        currentCenterX = (width * 0.8) - (width * 0.3 * progress); // 从 0.8 移到 0.5
+                    }
+
+                    if (this.type === 'orb1' || this.type === 'orb2') {
+                        // 螺旋运动
+                        this.angle += this.speed + (progress * 0.1); // 越靠近转得越快
+                        // 半径收缩
+                        let currentRadius = this.radius * (1 - progress * 0.8);
+                        
+                        this.x = currentCenterX + Math.cos(this.angle) * currentRadius;
+                        this.y = (height * 0.5) + Math.sin(this.angle) * currentRadius;
+                        
+                        // 增加抖动感
+                        this.x += (Math.random() - 0.5) * 2;
+                        this.y += (Math.random() - 0.5) * 2;
+                    }
+                }
+                
+                // --- 阶段2：爆炸扩散 ---
+                else if (animationPhase === 'exploding') {
+                    if (this.type === 'explosion') {
+                        this.x += Math.cos(this.angle) * this.velocity;
+                        this.y += Math.sin(this.angle) * this.velocity;
+                        this.velocity *= this.friction; // 减速
+                        this.life -= 0.01; // 淡出
+                    }
+                }
+                
+                // --- 阶段3：背景星光闪烁 ---
+                else if (animationPhase === 'settled') {
+                    if (this.type === 'star') {
+                        this.alpha += this.blinkSpeed;
+                        if (this.alpha > 1 || this.alpha < 0) this.blinkSpeed *= -1;
+                    }
+                }
+            }
+
+            draw() {
+                if (this.type === 'explosion' && this.life <= 0) return;
+
+                ctx.beginPath();
+                
+                if (animationPhase === 'settled' && this.type === 'star') {
+                     ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(this.alpha)})`;
+                } else if (this.type === 'explosion') {
+                    ctx.fillStyle = this.color.replace('0.8', this.life); // 修改透明度
+                } else {
+                    ctx.fillStyle = this.color;
+                }
+
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // --- 系统变量 ---
+        let particles = [];
+        let startTime = null;
+        const APPROACH_DURATION = 4000; // 靠近动画持续 4秒
+
+        // 初始化
+        function init() {
+            // 创建两组星云
+            for(let i=0; i<80; i++) particles.push(new Particle('orb1'));
+            for(let i=0; i<80; i++) particles.push(new Particle('orb2'));
+            
+            requestAnimationFrame(animate);
+        }
+
+        // 动画主循环
+        function animate(timestamp) {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+
+            // 1. 设置拖尾背景 (制造运动模糊感)
+            // 在爆炸瞬间不留拖尾，闪瞎眼
+            if (animationPhase === 'exploding' && elapsed - APPROACH_DURATION < 100) {
+                ctx.fillStyle = 'rgba(255, 255, 255, 0.8)'; // 白屏一闪
+            } else {
+                ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; // 深色半透明覆盖
+            }
+            ctx.fillRect(0, 0, width, height);
+            
+            // 开启高亮混合模式 (让重叠的粒子发光)
+            ctx.globalCompositeOperation = 'lighter';
+
+            // 2. 状态机逻辑
+            let progress = Math.min(elapsed / APPROACH_DURATION, 1);
+            
+            if (progress < 1) {
+                // 正在靠近
+                animationPhase = 'approaching';
+            } else if (animationPhase === 'approaching') {
+                // 刚刚到达中心 -> 触发爆炸
+                animationPhase = 'exploding';
+                
+                // 移除旧的星云粒子
+                particles = [];
+                // 生成爆炸粒子
+                for(let i=0; i<200; i++) particles.push(new Particle('explosion'));
+                // 生成背景恒星 (为 settled 阶段做准备)
+                for(let i=0; i<150; i++) particles.push(new Particle('star'));
+
+                // 显示文字
+                setTimeout(() => {
+                    document.getElementById('content').classList.add('active');
+                }, 800); // 爆炸后0.8秒显示文字
+            }
+
+            // 如果爆炸粒子都消失了，切换到 settled
+            if (animationPhase === 'exploding') {
+                const alive = particles.filter(p => p.type === 'explosion' && p.life > 0);
+                if (alive.length === 0) animationPhase = 'settled';
+            }
+
+            // 3. 更新和绘制所有粒子
+            particles.forEach(p => {
+                p.update(progress);
+                p.draw();
+            });
+
+            ctx.globalCompositeOperation = 'source-over'; // 恢复默认混合模式
+
+            requestAnimationFrame(animate);
+        }
+
+        // --- 计时器逻辑 ---
         function updateTimer() {
-            const start = new Date(START_DATE).getTime();
+            const start = new Date(CONFIG.startDate).getTime();
             const now = new Date().getTime();
             const diff = now - start;
 
-            if (diff < 0) return; // 还没到时间
+            const days = Math.floor(diff / (86400000));
+            const hours = Math.floor((diff % 86400000) / 3600000);
+            const minutes = Math.floor((diff % 3600000) / 60000);
+            const seconds = Math.floor((diff % 60000) / 1000);
 
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-
-            const grid = document.getElementById('timer');
-            grid.innerHTML = `
-                <div class="timer-item"><div class="timer-number">${days}</div><div class="timer-label">DAYS</div></div>
-                <div class="timer-item"><div class="timer-number">${hours}</div><div class="timer-label">HRS</div></div>
-                <div class="timer-item"><div class="timer-number">${minutes}</div><div class="timer-label">MIN</div></div>
-                <div class="timer-item"><div class="timer-number">${seconds}</div><div class="timer-label">SEC</div></div>
+            document.getElementById('timer-display').innerHTML = `
+                <div class="timer-item"><div class="timer-val">${days}</div><div class="timer-label">Days</div></div>
+                <div class="timer-item"><div class="timer-val">${hours}</div><div class="timer-label">Hours</div></div>
+                <div class="timer-item"><div class="timer-val">${minutes}</div><div class="timer-label">Min</div></div>
+                <div class="timer-item"><div class="timer-val">${seconds}</div><div class="timer-label">Sec</div></div>
             `;
         }
         setInterval(updateTimer, 1000);
         updateTimer();
 
-        // 2. 星空粒子背景特效 (Canvas)
-        const canvas = document.getElementById('canvas-bg');
-        const ctx = canvas.getContext('2d');
-        let particlesArray;
-
-        // 设置画布大小
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-
-        // 粒子类
-        class Particle {
-            constructor(x, y, directionX, directionY, size, color) {
-                this.x = x;
-                this.y = y;
-                this.directionX = directionX;
-                this.directionY = directionY;
-                this.size = size;
-                this.color = color;
-                this.opacity = Math.random() * 0.5 + 0.1; // 随机透明度
-            }
-            // 绘制
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
-                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-                ctx.fill();
-            }
-            // 更新位置
-            update() {
-                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
-                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
-                this.x += this.directionX * 0.2; // 降低速度，制造漂浮感
-                this.y += this.directionY * 0.2;
-                
-                // 闪烁效果
-                if(Math.random() > 0.98) {
-                    this.opacity = Math.random() * 0.8;
-                }
-                this.draw();
-            }
-        }
-
-        // 初始化粒子
-        function init() {
-            particlesArray = [];
-            let numberOfParticles = (canvas.height * canvas.width) / 12000; // 根据屏幕面积计算数量
-            for (let i = 0; i < numberOfParticles; i++) {
-                let size = (Math.random() * 2) + 0.5;
-                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
-                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
-                let directionX = (Math.random() * 2) - 1;
-                let directionY = (Math.random() * 2) - 1;
-                let color = '#fff';
-                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
-            }
-        }
-
-        // 动画循环
-        function animate() {
-            requestAnimationFrame(animate);
-            ctx.clearRect(0, 0, innerWidth, innerHeight);
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-            }
-        }
-
-        // 响应窗口大小变化
-        window.addEventListener('resize', () => {
-            canvas.width = innerWidth;
-            canvas.height = innerHeight;
-            init();
-        });
-
+        // 启动！
         init();
-        animate();
+
     </script>
 </body>
 </html>
