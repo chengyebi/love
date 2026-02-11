@@ -3,107 +3,174 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我们相识的时光</title>
+    <title>我们的故事</title>
     <style>
+        /* 动态渐变背景 */
         body {
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(120deg, #a1c4fd 0%, #c2e9fb 100%);
-            height: 100vh;
             margin: 0;
+            padding: 0;
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #444;
+            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+            overflow: hidden; /* 防止出现滚动条 */
+            user-select: none; /* 禁止选中文字，体验更好 */
         }
-        .card {
-            background: rgba(255, 255, 255, 0.95);
-            padding: 40px;
+
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* 毛玻璃卡片容器 */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.35);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(50, 50, 93, 0.1), 0 5px 15px rgba(0, 0, 0, 0.07);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            padding: 40px;
             text-align: center;
+            width: 320px;
             max-width: 90%;
-            width: 380px;
+            color: #fff;
+            animation: float 6s ease-in-out infinite;
         }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
         h1 {
-            font-size: 22px;
-            margin-bottom: 5px;
-            color: #2c3e50;
+            margin: 0;
+            font-size: 26px;
+            font-weight: 600;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
-        p.subtitle {
+
+        .subtitle {
             font-size: 14px;
-            color: #7f8c8d;
-            margin-bottom: 25px;
+            margin-top: 10px;
+            opacity: 0.9;
         }
-        .heart {
-            color: #e74c3c;
+
+        .main-heart {
             font-size: 60px;
             margin: 20px 0;
-            animation: heartbeat 1.5s infinite;
+            display: inline-block;
+            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
+            animation: beat 1.2s infinite;
+            cursor: pointer;
         }
-        @keyframes heartbeat {
-            0% { transform: scale(1); }
-            14% { transform: scale(1.1); }
-            28% { transform: scale(1); }
-            42% { transform: scale(1.1); }
-            70% { transform: scale(1); }
+
+        @keyframes beat {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.15); }
         }
-        .timer-box {
+
+        /* 计时器数字样式 */
+        .timer {
             font-size: 18px;
-            line-height: 1.8;
-            font-weight: 500;
+            line-height: 1.6;
+            background: rgba(255,255,255,0.2);
+            padding: 15px;
+            border-radius: 12px;
+            margin-top: 20px;
         }
-        .highlight {
-            font-size: 28px;
+        
+        .timer span {
+            font-size: 24px;
             font-weight: bold;
-            color: #e74c3c;
-            margin: 0 4px;
+            margin: 0 2px;
         }
+
         .footer {
-            margin-top: 30px;
+            margin-top: 25px;
             font-size: 12px;
-            color: #bdc3c7;
+            opacity: 0.8;
+        }
+
+        /* 点击产生的小爱心样式 */
+        .click-heart {
+            position: absolute;
+            color: #fff;
+            font-size: 20px;
+            pointer-events: none; /* 让鼠标穿透，不影响点击 */
+            animation: flyUp 1s ease-out forwards;
+        }
+
+        @keyframes flyUp {
+            0% { opacity: 1; transform: translateY(0) scale(1); }
+            100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
         }
     </style>
 </head>
 <body>
-    <div class="card">
+
+    <div class="glass-card">
         <h1>我们要一直在一起</h1>
-        <p class="subtitle">始于 2025-08-06 13:55</p>
+        <div class="subtitle">始于 2025.08.06 13:55</div>
         
-        <div class="heart">❤</div>
+        <div class="main-heart" onclick="createHeart(event)">❤</div>
         
-        <div class="timer-box" id="timer">
-            正在加载时间...
+        <div class="timer" id="timer">
+            计算中...
         </div>
 
-        <div class="footer">Forever & Always</div>
+        <div class="footer">
+            点点屏幕有惊喜 ✨<br>
+            Forever & Always
+        </div>
     </div>
 
     <script>
-        // 设定精确时间：2025年8月6日 13:55:00
+        // --- 计时器逻辑 ---
         const startTime = new Date('2025-08-06T13:55:00').getTime();
 
         function updateTimer() {
             const now = new Date().getTime();
-            const difference = now - startTime;
+            const diff = now - startTime;
 
-            // 计算时间单位
-            const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            // 更新页面显示
             document.getElementById('timer').innerHTML = 
-                `我们已经相识：<br>` +
-                `<span class="highlight">${days}</span> 天 ` +
-                `<span class="highlight">${hours}</span> 小时<br>` +
-                `<span class="highlight">${minutes}</span> 分 ` +
-                `<span class="highlight">${seconds}</span> 秒`;
+                `<span>${days}</span> 天 <span>${hours}</span> 小时<br>` +
+                `<span>${minutes}</span> 分 <span>${seconds}</span> 秒`;
         }
-
         setInterval(updateTimer, 1000);
-        updateTimer(); // 初始化
+        updateTimer();
+
+        // --- 点击爱心特效逻辑 ---
+        document.body.addEventListener('click', function(e) {
+            const heart = document.createElement('div');
+            heart.classList.add('click-heart');
+            heart.innerHTML = '❤';
+            
+            // 设置爱心的位置在鼠标点击处
+            heart.style.left = (e.clientX - 10) + 'px';
+            heart.style.top = (e.clientY - 10) + 'px';
+            
+            // 随机颜色（可选，这里用白色保持纯净，或者淡粉色）
+            // heart.style.color = '#ffccd5'; 
+
+            document.body.appendChild(heart);
+
+            // 动画结束后移除元素
+            setTimeout(() => {
+                heart.remove();
+            }, 1000);
+        });
     </script>
 </body>
 </html>
