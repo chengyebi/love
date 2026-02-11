@@ -3,174 +3,247 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我们的故事</title>
+    <title>Our Time | 我们的故事</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@300;700&family=Playfair+Display:ital,wght@1,400&display=swap" rel="stylesheet">
     <style>
-        /* 动态渐变背景 */
+        /* 全局重置 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            margin: 0;
-            padding: 0;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #0f2027, #203a43, #2c5364); /* 深邃星空色 */
+            font-family: 'Noto Serif SC', serif;
+            color: #ffffff;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'PingFang SC', 'Microsoft YaHei', sans-serif;
-            background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #fad0c4, #a18cd1);
-            background-size: 400% 400%;
-            animation: gradientBG 15s ease infinite;
-            overflow: hidden; /* 防止出现滚动条 */
-            user-select: none; /* 禁止选中文字，体验更好 */
+            position: relative;
         }
 
-        @keyframes gradientBG {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
+        /* Canvas 背景层 */
+        #canvas-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
         }
 
-        /* 毛玻璃卡片容器 */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.35);
-            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.18);
-            padding: 40px;
+        /* 主卡片：极简磨砂玻璃 */
+        .card {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.05); /* 极低透明度 */
+            backdrop-filter: blur(20px); /* 强力模糊 */
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 50px 40px;
             text-align: center;
-            width: 320px;
-            max-width: 90%;
-            color: #fff;
-            animation: float 6s ease-in-out infinite;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 420px;
+            transition: transform 0.3s ease;
         }
 
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-10px); }
-            100% { transform: translateY(0px); }
-        }
-
+        /* 标题设计 */
         h1 {
-            margin: 0;
-            font-size: 26px;
-            font-weight: 600;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            font-family: 'Playfair Display', serif;
+            font-size: 32px;
+            font-style: italic;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3);
         }
 
         .subtitle {
-            font-size: 14px;
-            margin-top: 10px;
-            opacity: 0.9;
-        }
-
-        .main-heart {
-            font-size: 60px;
-            margin: 20px 0;
-            display: inline-block;
-            filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.5));
-            animation: beat 1.2s infinite;
-            cursor: pointer;
-        }
-
-        @keyframes beat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.15); }
-        }
-
-        /* 计时器数字样式 */
-        .timer {
-            font-size: 18px;
-            line-height: 1.6;
-            background: rgba(255,255,255,0.2);
-            padding: 15px;
-            border-radius: 12px;
-            margin-top: 20px;
-        }
-        
-        .timer span {
-            font-size: 24px;
-            font-weight: bold;
-            margin: 0 2px;
-        }
-
-        .footer {
-            margin-top: 25px;
             font-size: 12px;
-            opacity: 0.8;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            opacity: 0.7;
+            margin-bottom: 40px;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            display: inline-block;
+            padding-bottom: 5px;
         }
 
-        /* 点击产生的小爱心样式 */
-        .click-heart {
-            position: absolute;
-            color: #fff;
-            font-size: 20px;
-            pointer-events: none; /* 让鼠标穿透，不影响点击 */
-            animation: flyUp 1s ease-out forwards;
+        /* 心跳动画 */
+        .heart-icon {
+            font-size: 40px;
+            color: #ff7675;
+            margin-bottom: 30px;
+            display: inline-block;
+            filter: drop-shadow(0 0 20px rgba(255, 118, 117, 0.6));
+            animation: breathe 2s infinite ease-in-out;
         }
 
-        @keyframes flyUp {
-            0% { opacity: 1; transform: translateY(0) scale(1); }
-            100% { opacity: 0; transform: translateY(-100px) scale(1.5); }
+        @keyframes breathe {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.1); opacity: 1; }
         }
+
+        /* 计时器网格布局 */
+        .timer-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .timer-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .timer-number {
+            font-family: 'Playfair Display', serif; /* 数字用衬线体更优雅 */
+            font-size: 36px;
+            font-weight: 700;
+            background: -webkit-linear-gradient(#fff, #a8c0ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .timer-label {
+            font-size: 10px;
+            opacity: 0.6;
+            margin-top: 5px;
+            font-weight: 300;
+        }
+
+        /* 底部署名 */
+        .footer {
+            margin-top: 40px;
+            font-size: 12px;
+            opacity: 0.4;
+            font-family: sans-serif;
+            letter-spacing: 1px;
+        }
+
     </style>
 </head>
 <body>
 
-    <div class="glass-card">
-        <h1>我们要一直在一起</h1>
-        <div class="subtitle">始于 2025.08.06 13:55</div>
-        
-        <div class="main-heart" onclick="createHeart(event)">❤</div>
-        
-        <div class="timer" id="timer">
-            计算中...
-        </div>
+    <canvas id="canvas-bg"></canvas>
 
-        <div class="footer">
-            点点屏幕有惊喜 ✨<br>
-            Forever & Always
-        </div>
+    <div class="card">
+        <div class="heart-icon">❤</div>
+        <h1>Loving You</h1>
+        <div class="subtitle">SINCE 2025.08.06</div>
+
+        <div class="timer-grid" id="timer">
+            </div>
+
+        <div class="footer">Created by your Boyfriend</div>
     </div>
 
     <script>
-        // --- 计时器逻辑 ---
-        const startTime = new Date('2025-08-06T13:55:00').getTime();
+        // ================= 配置区域 =================
+        const START_DATE = '2025-08-06T13:55:00'; 
+        // ===========================================
 
+        // 1. 计时器逻辑
         function updateTimer() {
+            const start = new Date(START_DATE).getTime();
             const now = new Date().getTime();
-            const diff = now - startTime;
+            const diff = now - start;
+
+            if (diff < 0) return; // 还没到时间
 
             const days = Math.floor(diff / (1000 * 60 * 60 * 24));
             const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            document.getElementById('timer').innerHTML = 
-                `<span>${days}</span> 天 <span>${hours}</span> 小时<br>` +
-                `<span>${minutes}</span> 分 <span>${seconds}</span> 秒`;
+            const grid = document.getElementById('timer');
+            grid.innerHTML = `
+                <div class="timer-item"><div class="timer-number">${days}</div><div class="timer-label">DAYS</div></div>
+                <div class="timer-item"><div class="timer-number">${hours}</div><div class="timer-label">HRS</div></div>
+                <div class="timer-item"><div class="timer-number">${minutes}</div><div class="timer-label">MIN</div></div>
+                <div class="timer-item"><div class="timer-number">${seconds}</div><div class="timer-label">SEC</div></div>
+            `;
         }
         setInterval(updateTimer, 1000);
         updateTimer();
 
-        // --- 点击爱心特效逻辑 ---
-        document.body.addEventListener('click', function(e) {
-            const heart = document.createElement('div');
-            heart.classList.add('click-heart');
-            heart.innerHTML = '❤';
-            
-            // 设置爱心的位置在鼠标点击处
-            heart.style.left = (e.clientX - 10) + 'px';
-            heart.style.top = (e.clientY - 10) + 'px';
-            
-            // 随机颜色（可选，这里用白色保持纯净，或者淡粉色）
-            // heart.style.color = '#ffccd5'; 
+        // 2. 星空粒子背景特效 (Canvas)
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let particlesArray;
 
-            document.body.appendChild(heart);
+        // 设置画布大小
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-            // 动画结束后移除元素
-            setTimeout(() => {
-                heart.remove();
-            }, 1000);
+        // 粒子类
+        class Particle {
+            constructor(x, y, directionX, directionY, size, color) {
+                this.x = x;
+                this.y = y;
+                this.directionX = directionX;
+                this.directionY = directionY;
+                this.size = size;
+                this.color = color;
+                this.opacity = Math.random() * 0.5 + 0.1; // 随机透明度
+            }
+            // 绘制
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+                ctx.fill();
+            }
+            // 更新位置
+            update() {
+                if (this.x > canvas.width || this.x < 0) this.directionX = -this.directionX;
+                if (this.y > canvas.height || this.y < 0) this.directionY = -this.directionY;
+                this.x += this.directionX * 0.2; // 降低速度，制造漂浮感
+                this.y += this.directionY * 0.2;
+                
+                // 闪烁效果
+                if(Math.random() > 0.98) {
+                    this.opacity = Math.random() * 0.8;
+                }
+                this.draw();
+            }
+        }
+
+        // 初始化粒子
+        function init() {
+            particlesArray = [];
+            let numberOfParticles = (canvas.height * canvas.width) / 12000; // 根据屏幕面积计算数量
+            for (let i = 0; i < numberOfParticles; i++) {
+                let size = (Math.random() * 2) + 0.5;
+                let x = (Math.random() * ((innerWidth - size * 2) - (size * 2)) + size * 2);
+                let y = (Math.random() * ((innerHeight - size * 2) - (size * 2)) + size * 2);
+                let directionX = (Math.random() * 2) - 1;
+                let directionY = (Math.random() * 2) - 1;
+                let color = '#fff';
+                particlesArray.push(new Particle(x, y, directionX, directionY, size, color));
+            }
+        }
+
+        // 动画循环
+        function animate() {
+            requestAnimationFrame(animate);
+            ctx.clearRect(0, 0, innerWidth, innerHeight);
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+        }
+
+        // 响应窗口大小变化
+        window.addEventListener('resize', () => {
+            canvas.width = innerWidth;
+            canvas.height = innerHeight;
+            init();
         });
+
+        init();
+        animate();
     </script>
 </body>
 </html>
