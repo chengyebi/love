@@ -50,6 +50,7 @@
         /* 顶部日期 */
         .header {
             text-align: center;
+            /* [修复] 修正动画名称 */
             animation: fadeInDown 2s ease-out;
         }
         
@@ -298,12 +299,13 @@
                 // 3D 深度散布
                 this.z = (Math.random() - 0.5) * 50;
                 
-                // 颜色
+                // 颜色 (提高亮度，防止太暗)
                 this.color = Math.random() > 0.5 ? 
-                    `rgba(161, 196, 253, ${0.5 + Math.random()*0.5})` : // 蓝
-                    `rgba(251, 194, 235, ${0.5 + Math.random()*0.5})`; // 粉
+                    `rgba(161, 196, 253, ${0.7 + Math.random()*0.3})` : // 蓝，更亮
+                    `rgba(251, 194, 235, ${0.7 + Math.random()*0.3})`; // 粉，更亮
                 
-                this.size = Math.random() * 2 + 1;
+                // 稍微加大粒子尺寸
+                this.size = Math.random() * 2.5 + 1.5;
             }
             
             update(angle) {
@@ -325,7 +327,7 @@
                 let perspective = fov / (fov + z);
                 
                 this.px = x * perspective + width / 2;
-                this.py = y * perspective + height / 2 - 20; // 稍微向上提一点
+                this.py = y * perspective + height / 2 - 30; // 稍微向上提一点
                 this.ps = this.size * perspective;
             }
             
@@ -463,11 +465,11 @@
 
         // --- 主循环 ---
         function animate() {
-            // [修复] 绝对重置坐标系，防止长时间运行卡死
+            // [修复] 绝对重置坐标系，防止卡顿
             ctx.setTransform(1, 0, 0, 1, 0, 0); 
             
-            // 清空画布 (带微弱拖尾)
-            ctx.fillStyle = 'rgba(10, 15, 25, 0.2)';
+            // 清空画布 (减少了透明度，让爱心更亮，解决看不清的问题)
+            ctx.fillStyle = 'rgba(10, 15, 25, 0.1)'; 
             ctx.fillRect(0, 0, width, height);
 
             tick++;
