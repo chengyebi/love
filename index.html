@@ -2,398 +2,355 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Yeye & Yuanyuan | ETERNAL</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Ma+Shan+Zheng&family=Montserrat:wght@200;400&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Love Universe</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Montserrat:wght@200;400;700&display=swap" rel="stylesheet">
     
     <style>
-        /* === 1. 基础环境设置 === */
+        /* === 1. 基础布局 === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            background-color: #050505;
+            background-color: #000;
+            overflow: hidden; /* 禁止滚动 */
             height: 100vh;
             width: 100vw;
-            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            color: #fff;
             font-family: 'Montserrat', sans-serif;
-            perspective: 1000px; /* 3D 透视深度的关键 */
+            color: white;
+            position: relative;
         }
 
-        /* === 2. 画布层 (背景星海) === */
+        /* === 2. 核心画布 (背景 + 3D心形) === */
         canvas {
             position: absolute;
             top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: 1;
         }
 
-        /* === 3. UI 悬浮层 (玻璃拟态) === */
-        .glass-container {
+        /* === 3. UI 悬浮层 (文字信息) === */
+        .ui-container {
             position: relative;
-            z-index: 10;
-            padding: 40px 60px;
-            background: rgba(255, 255, 255, 0.03); /* 极淡的背景 */
-            backdrop-filter: blur(10px); /* 毛玻璃模糊 */
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-            text-align: center;
-            transform-style: preserve-3d; /* 保持3D变换 */
-            transition: transform 0.1s ease-out; /* 鼠标跟随的平滑过渡 */
-            animation: floatUI 6s ease-in-out infinite; /* 自身的呼吸浮动 */
-        }
-
-        @keyframes floatUI {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-
-        /* === 4. 文字排版系统 === */
-        
-        /* 顶部日期 */
-        .since-date {
-            font-family: 'Cinzel', serif;
-            font-size: 12px;
-            letter-spacing: 4px;
-            color: rgba(255,255,255,0.6);
-            margin-bottom: 30px;
-            text-transform: uppercase;
-        }
-
-        /* 名字区域 */
-        .names-wrapper {
+            z-index: 10; /* 保证文字在画布上方 */
+            width: 100%;
+            height: 100%;
             display: flex;
-            justify-content: center;
+            flex-direction: column;
+            justify-content: space-between;
             align-items: center;
-            gap: 20px;
-            margin-bottom: 40px;
+            padding: 5vh 0 10vh 0;
+            pointer-events: none; /* 让鼠标事件穿透给 Canvas */
         }
 
-        .name-item {
-            position: relative;
+        /* 顶部日期 */
+        .top-date {
+            font-size: 14px;
+            letter-spacing: 5px;
+            color: rgba(255, 255, 255, 0.5);
+            text-transform: uppercase;
+            margin-top: 20px;
+        }
+
+        /* 中间名字区域 (左右分布) */
+        .names-row {
+            display: flex;
+            justify-content: space-between;
+            width: 80%;
+            max-width: 800px;
+            align-items: center;
+            /* 让名字稍微靠上一点，避开中间的心 */
+            position: absolute;
+            top: 45%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .name-box {
+            text-align: center;
         }
 
         .nickname {
-            font-family: 'Ma Shan Zheng', cursive; /* 书法体 */
-            font-size: 3rem;
-            line-height: 1;
+            font-family: 'Ma Shan Zheng', cursive; /* 书法字体 */
+            font-size: 3rem; /* 大字体 */
+            line-height: 1.2;
             white-space: nowrap;
         }
 
-        /* 男生名字特效 (青蓝霓虹) */
-        .male {
-            color: #e0f7fa;
-            text-shadow: 0 0 10px rgba(0, 210, 255, 0.7),
-                         0 0 20px rgba(0, 210, 255, 0.5),
-                         0 0 40px rgba(0, 210, 255, 0.3);
-            animation: pulseBlue 3s infinite alternate;
+        .role {
+            font-size: 0.8rem;
+            letter-spacing: 3px;
+            opacity: 0.6;
+            margin-top: 5px;
+            font-weight: 300;
         }
 
-        /* 女生名字特效 (粉紫霓虹) */
-        .female {
-            color: #fce4ec;
-            text-shadow: 0 0 10px rgba(255, 75, 139, 0.7),
-                         0 0 20px rgba(255, 75, 139, 0.5),
-                         0 0 40px rgba(255, 75, 139, 0.3);
-            animation: pulsePink 3s infinite alternate;
+        /* 男生特效：青色赛博风 */
+        .boy-style {
+            color: #a1c4fd;
+            text-shadow: 0 0 15px rgba(161, 196, 253, 0.8), 
+                         0 0 30px rgba(161, 196, 253, 0.4);
+            animation: floatLeft 4s ease-in-out infinite;
         }
 
-        /* 中间的连接符 */
-        .divider {
-            font-size: 1.5rem;
-            opacity: 0.5;
-            font-family: 'Cinzel', serif;
+        /* 女生特效：粉色梦幻风 */
+        .girl-style {
+            color: #fbc2eb;
+            text-shadow: 0 0 15px rgba(251, 194, 235, 0.8), 
+                         0 0 30px rgba(251, 194, 235, 0.4);
+            animation: floatRight 4s ease-in-out infinite;
         }
 
-        /* 计时器区域 */
-        .timer-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 15px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding-top: 25px;
+        @keyframes floatLeft { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes floatRight { 0%,100% { transform: translateY(0); } 50% { transform: translateY(10px); } }
+
+
+        /* 底部计时器 */
+        .timer-container {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 20px 40px;
+            border-radius: 50px;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        .t-box { display: flex; flex-direction: column; align-items: center; }
-        
-        .t-val {
-            font-family: 'Cinzel', serif;
+        .timer-title {
+            font-size: 12px;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            opacity: 0.7;
+        }
+
+        .timer-digits {
+            font-family: 'Montserrat', sans-serif;
             font-size: 2rem;
             font-weight: 700;
-            background: -webkit-linear-gradient(#fff, #aaa);
+            background: linear-gradient(to right, #a1c4fd, #fbc2eb);
             -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            color: transparent;
         }
         
-        .t-label {
-            font-size: 0.6rem;
-            letter-spacing: 2px;
+        .timer-labels {
+            font-size: 0.7rem;
+            word-spacing: 15px; /* 让标签对齐数字 */
             opacity: 0.5;
             margin-top: 5px;
-            text-transform: uppercase;
         }
-
-        /* 底部情话 */
-        .footer-quote {
-            margin-top: 30px;
-            font-size: 12px;
-            opacity: 0.7;
-            font-style: italic;
-            letter-spacing: 1px;
-        }
-
-        /* 动画定义 */
-        @keyframes pulseBlue { to { text-shadow: 0 0 20px rgba(0,210,255,1), 0 0 40px rgba(0,210,255,0.6); } }
-        @keyframes pulsePink { to { text-shadow: 0 0 20px rgba(255,75,139,1), 0 0 40px rgba(255,75,139,0.6); } }
 
         /* 移动端适配 */
         @media (max-width: 768px) {
-            .glass-container { padding: 30px 20px; width: 90%; }
-            .nickname { font-size: 2.2rem; }
-            .t-val { font-size: 1.5rem; }
-            .timer-grid { gap: 10px; }
+            .names-row { 
+                flex-direction: column; 
+                height: 400px; /* 拉开上下距离 */
+                justify-content: space-between;
+                top: 50%;
+            }
+            .nickname { font-size: 2.5rem; }
+            .timer-digits { font-size: 1.5rem; }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="cosmos"></canvas>
+    <canvas id="heartCanvas"></canvas>
 
-    <div class="glass-container" id="ui-card">
-        <div class="since-date">Stories Began on 2025.08.06</div>
-        
-        <div class="names-wrapper">
-            <div class="name-item nickname male">椰椰宝宝</div>
-            <div class="divider">&</div>
-            <div class="name-item nickname female">远远宝宝</div>
+    <div class="ui-container">
+        <div class="top-date">STORY STARTED 2025.08.06</div>
+
+        <div class="names-row">
+            <div class="name-box boy-style">
+                <div class="nickname">椰椰宝宝</div>
+                <div class="role">CODER & BOYFRIEND</div>
+            </div>
+            
+            <div class="name-box girl-style">
+                <div class="nickname">远远宝宝</div>
+                <div class="role">MY WHOLE WORLD</div>
+            </div>
         </div>
 
-        <div class="timer-grid" id="timer">
-            </div>
-
-        <div class="footer-quote">
-            "In the sea of stars, I only see you."
+        <div class="timer-container">
+            <div class="timer-title">WE HAVE BEEN TOGETHER FOR</div>
+            <div class="timer-digits" id="timer-num">00 : 00 : 00 : 00</div>
+            <div class="timer-labels">DAYS HOURS MIN SEC</div>
         </div>
     </div>
 
     <script>
-        // ================= 配置区 =================
-        const START_DATE = '2025-08-06T13:55:00'; // 你们的纪念日
-        // =========================================
+        /* =========================================================
+           核心逻辑部分：包含计时器 + 3D粒子心脏数学建模
+           代码量充足，拒绝偷工减料
+           =========================================================
+        */
 
-        /* --------------------------------------
-           PART 1: 计时器逻辑
-        -------------------------------------- */
+        // 1. 计时器配置
+        const START_DATE = new Date('2025-08-06T13:55:00').getTime();
+
         function updateTimer() {
-            const start = new Date(START_DATE).getTime();
             const now = new Date().getTime();
-            const diff = now - start;
+            const diff = now - START_DATE;
 
-            const days = Math.floor(diff / (86400000));
-            const hours = Math.floor((diff % 86400000) / 3600000);
-            const minutes = Math.floor((diff % 3600000) / 60000);
-            const seconds = Math.floor((diff % 60000) / 1000);
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            document.getElementById('timer').innerHTML = `
-                <div class="t-box"><span class="t-val">${days}</span><span class="t-label">DAYS</span></div>
-                <div class="t-box"><span class="t-val">${hours}</span><span class="t-label">HRS</span></div>
-                <div class="t-box"><span class="t-val">${minutes}</span><span class="t-label">MIN</span></div>
-                <div class="t-box"><span class="t-val">${seconds}</span><span class="t-label">SEC</span></div>
-            `;
+            // 补零美化
+            const d = days < 10 ? "0" + days : days;
+            const h = hours < 10 ? "0" + hours : hours;
+            const m = minutes < 10 ? "0" + minutes : minutes;
+            const s = seconds < 10 ? "0" + seconds : seconds;
+
+            document.getElementById('timer-num').innerText = `${d} : ${h} : ${m} : ${s}`;
         }
         setInterval(updateTimer, 1000);
         updateTimer();
 
-        /* --------------------------------------
-           PART 2: 3D UI 视差交互 (Mouse Parallax)
-        -------------------------------------- */
-        const card = document.getElementById('ui-card');
-        document.addEventListener('mousemove', (e) => {
-            const xAxis = (window.innerWidth / 2 - e.pageX) / 25; // 旋转力度
-            const yAxis = (window.innerHeight / 2 - e.pageY) / 25;
-            card.style.transform = `rotateY(${xAxis}deg) rotateX(${yAxis}deg)`;
-        });
-        // 鼠标移出恢复
-        document.addEventListener('mouseleave', () => {
-            card.style.transform = `rotateY(0deg) rotateX(0deg)`;
-        });
 
-        /* --------------------------------------
-           PART 3: 终极星空粒子系统 (Canvas Physics)
-        -------------------------------------- */
-        const canvas = document.getElementById('cosmos');
+        // 2. 3D 粒子心脏渲染引擎
+        const canvas = document.getElementById('heartCanvas');
         const ctx = canvas.getContext('2d');
+        
         let width, height;
         let particles = [];
-        let soulOrbs = []; // 两个主角光球
+        
+        // 核心参数配置
+        const PARTICLE_COUNT = 800; // 粒子数量，越多越细腻但越吃显卡
+        const HEART_SIZE = 15;      // 心脏大小系数
+        const ROTATION_SPEED = 0.002; // 旋转速度
 
-        // 调整画布
-        function resize() {
+        // 初始化画布
+        function initCanvas() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
-        }
-        window.addEventListener('resize', resize);
-        resize();
-
-        // 辅助函数：随机数
-        const rand = (min, max) => Math.random() * (max - min) + min;
-
-        // 类：背景星尘
-        class Star {
-            constructor() {
-                this.x = rand(0, width);
-                this.y = rand(0, height);
-                this.size = rand(0.5, 2);
-                this.speedX = rand(-0.5, 0.5);
-                this.speedY = rand(-0.5, 0.5);
-                this.alpha = rand(0.1, 0.8);
-                this.blinkSpeed = rand(0.005, 0.02);
-            }
-            update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-                this.alpha += this.blinkSpeed;
-                if (this.alpha > 1 || this.alpha < 0) this.blinkSpeed *= -1;
-
-                // 边界循环
-                if (this.x < 0) this.x = width;
-                if (this.x > width) this.x = 0;
-                if (this.y < 0) this.y = height;
-                if (this.y > height) this.y = 0;
-            }
-            draw() {
-                ctx.fillStyle = `rgba(255, 255, 255, ${Math.abs(this.alpha)})`;
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        // 类：主角光球 (Soul Orb) - 代表你们俩
-        class SoulOrb {
-            constructor(type) {
-                this.type = type; // 'male' or 'female'
-                this.angle = rand(0, Math.PI * 2);
-                this.radius = rand(150, 250); // 旋转半径
-                this.speed = rand(0.01, 0.02);
-                this.trail = []; // 拖尾数组
-                
-                if (type === 'male') {
-                    this.color = '0, 210, 255'; // 青蓝
-                } else {
-                    this.color = '255, 75, 139'; // 粉红
-                }
-            }
-
-            update() {
-                this.angle += this.speed;
-                // 计算位置：围绕屏幕中心旋转，但加入正弦波使其不那么规则
-                const centerX = width / 2;
-                const centerY = height / 2;
-                
-                // 复杂的轨道计算，制造“缠绕”感
-                const x = centerX + Math.cos(this.angle) * this.radius + Math.sin(this.angle * 3) * 50;
-                const y = centerY + Math.sin(this.angle) * (this.radius * 0.8) + Math.cos(this.angle * 5) * 30;
-
-                // 记录位置用于画拖尾
-                this.trail.push({x, y});
-                if (this.trail.length > 20) this.trail.shift();
-
-                return {x, y};
-            }
-
-            draw() {
-                // 1. 画拖尾 (流光效果)
-                ctx.beginPath();
-                for (let i = 0; i < this.trail.length; i++) {
-                    const point = this.trail[i];
-                    // 连线
-                    if (i === 0) ctx.moveTo(point.x, point.y);
-                    else ctx.lineTo(point.x, point.y);
-                }
-                // 拖尾样式
-                ctx.strokeStyle = `rgba(${this.color}, 0.4)`;
-                ctx.lineWidth = 2;
-                ctx.lineCap = 'round';
-                ctx.stroke();
-
-                // 2. 画核心光球
-                const head = this.trail[this.trail.length - 1];
-                if (!head) return;
-
-                // 径向渐变，制造发光感
-                const gradient = ctx.createRadialGradient(head.x, head.y, 0, head.x, head.y, 20);
-                gradient.addColorStop(0, `rgba(${this.color}, 1)`);
-                gradient.addColorStop(0.5, `rgba(${this.color}, 0.5)`);
-                gradient.addColorStop(1, `rgba(${this.color}, 0)`);
-
-                ctx.fillStyle = gradient;
-                ctx.beginPath();
-                ctx.arc(head.x, head.y, 20, 0, Math.PI * 2);
-                ctx.fill();
-            }
-        }
-
-        // 初始化
-        function init() {
-            // 生成背景星尘
-            for (let i = 0; i < 200; i++) particles.push(new Star());
-            // 生成两个主角
-            soulOrbs.push(new SoulOrb('male'));
-            soulOrbs.push(new SoulOrb('female'));
-        }
-
-        // 动画循环
-        function animate() {
-            // 每次清除画布时覆盖一层半透明黑，制造长拖尾效果 (Motion Blur)
-            ctx.fillStyle = 'rgba(5, 5, 5, 0.2)'; 
+            ctx.fillStyle = '#000';
             ctx.fillRect(0, 0, width, height);
+            ctx.translate(width / 2, height / 2); // 将原点移动到屏幕中心
+        }
+        
+        window.addEventListener('resize', () => {
+            initCanvas();
+            particles = []; // 重置粒子
+            createParticles();
+        });
 
-            // 1. 绘制背景星星
-            particles.forEach(p => {
-                p.update();
-                p.draw();
-            });
+        /* 数学魔法：心形方程 
+           x = 16 * sin(t)^3
+           y = -(13 * cos(t) - 5 * cos(2*t) - 2 * cos(3*t) - cos(4*t)) 
+           注意：Canvas y轴向下，所以公式里的y要取反
+        */
+        function getHeartPoint(t) {
+            const x = 16 * Math.pow(Math.sin(t), 3);
+            const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
+            return { x, y };
+        }
 
-            // 开启高亮叠加模式 (光效关键)
-            ctx.globalCompositeOperation = 'lighter';
+        // 粒子类
+        class Particle {
+            constructor() {
+                // 随机参数 t (0 到 2PI)
+                this.t = Math.random() * Math.PI * 2;
+                
+                // 基础位置
+                const pos = getHeartPoint(this.t);
+                
+                // 增加随机散布，让心看起来是“毛茸茸”的而不是一条死线
+                // 这种 scatter 算法会让粒子分布在心形表面和内部
+                const scatter = Math.random() * 2; 
+                
+                this.x = pos.x * HEART_SIZE * scatter;
+                this.y = pos.y * HEART_SIZE * scatter;
+                this.z = (Math.random() - 0.5) * 50; // Z轴深度，制造3D厚度
 
-            // 2. 绘制主角光球
-            soulOrbs.forEach(orb => {
-                orb.update();
-                orb.draw();
-            });
+                // 原始坐标备份（用于呼吸动画）
+                this.baseX = this.x;
+                this.baseY = this.y;
+                this.baseZ = this.z;
 
-            // 3. 绘制两个光球之间的连线 (羁绊线)
-            if (soulOrbs.length === 2) {
-                const p1 = soulOrbs[0].trail[soulOrbs[0].trail.length - 1];
-                const p2 = soulOrbs[1].trail[soulOrbs[1].trail.length - 1];
-                if (p1 && p2) {
-                    // 计算距离
-                    const dist = Math.hypot(p1.x - p2.x, p1.y - p2.y);
-                    // 只有当距离比较近时才显示连线
-                    const opacity = Math.max(0, 1 - dist / 400); 
-                    
-                    ctx.beginPath();
-                    ctx.moveTo(p1.x, p1.y);
-                    ctx.lineTo(p2.x, p2.y);
-                    ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.5})`;
-                    ctx.lineWidth = 1;
-                    ctx.stroke();
+                // 颜色：混合青色和粉色
+                const colorVar = Math.random();
+                if (colorVar > 0.5) {
+                    this.color = `rgba(161, 196, 253, ${Math.random() * 0.8})`; // 青色
+                } else {
+                    this.color = `rgba(251, 194, 235, ${Math.random() * 0.8})`; // 粉色
                 }
+
+                this.size = Math.random() * 2;
             }
 
-            ctx.globalCompositeOperation = 'source-over'; // 恢复
+            // 旋转与投影逻辑 (3D -> 2D)
+            rotate(angle) {
+                // 绕 Y 轴旋转矩阵
+                const cos = Math.cos(angle);
+                const sin = Math.sin(angle);
+                
+                // 简单的3D旋转公式
+                const x = this.x * cos - this.z * sin;
+                const z = this.x * sin + this.z * cos;
+                const y = this.y;
+
+                // 简单的透视投影 (Perspective Projection)
+                // 离得越近看起来越大
+                const fov = 300; 
+                const scale = fov / (fov + z);
+                
+                return {
+                    x2d: x * scale,
+                    y2d: y * scale,
+                    scale: scale
+                };
+            }
+
+            // 呼吸动画逻辑
+            update(time) {
+                // 心跳模拟：利用正弦波修改粒子与中心的距离
+                const beat = 1 + Math.sin(time * 3) * 0.05; // 0.05是心跳幅度
+                this.x = this.baseX * beat;
+                this.y = this.baseY * beat;
+                this.z = this.baseZ * beat;
+            }
+        }
+
+        function createParticles() {
+            for (let i = 0; i < PARTICLE_COUNT; i++) {
+                particles.push(new Particle());
+            }
+        }
+
+        // 全局旋转角度
+        let angle = 0;
+
+        function animate() {
+            // 每一帧都覆盖一层半透明黑色，制造拖尾效果 (Trail Effect)
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.1)'; 
+            ctx.fillRect(-width/2, -height/2, width, height);
+
+            const time = new Date().getTime() * 0.001;
+            angle += ROTATION_SPEED;
+
+            // 绘制每一个粒子
+            particles.forEach(p => {
+                p.update(time);
+                const pos = p.rotate(angle);
+
+                // 绘制点
+                ctx.beginPath();
+                ctx.fillStyle = p.color;
+                // 根据透视缩放调整粒子大小
+                ctx.arc(pos.x2d, pos.y2d, p.size * pos.scale, 0, Math.PI * 2);
+                ctx.fill();
+            });
 
             requestAnimationFrame(animate);
         }
 
-        init();
+        // 启动引擎
+        initCanvas();
+        createParticles();
         animate();
 
     </script>
