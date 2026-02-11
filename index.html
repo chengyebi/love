@@ -2,28 +2,29 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>我们的故事</title>
-    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Noto+Serif+SC:wght@300;700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>星河皆是你</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&family=Zhi+Mang+Xing&family=Noto+Serif+SC:wght@300;700&display=swap" rel="stylesheet">
     
     <style>
-        /* === 1. 基础布局 === */
+        /* === 全局重置 === */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            background-color: #000;
+            /* 深邃夜空背景 */
+            background: radial-gradient(circle at center bottom, #1b2735 0%, #090a0f 100%);
             overflow: hidden;
             height: 100vh;
             width: 100vw;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Noto Serif SC', serif; /* 思源宋体，更有质感 */
+            font-family: 'Noto Serif SC', serif;
             color: white;
             position: relative;
         }
 
-        /* === 2. 画布 (背景星空 + 3D心) === */
+        /* === 核心画布 === */
         canvas {
             position: absolute;
             top: 0; left: 0;
@@ -31,168 +32,170 @@
             z-index: 1;
         }
 
-        /* === 3. UI 悬浮层 (文字信息) === */
-        .ui-container {
-            position: relative;
+        /* === UI 层 (悬浮在画布之上) === */
+        .ui-layer {
+            position: absolute;
             z-index: 10;
             width: 100%;
             height: 100%;
+            pointer-events: none; /* 鼠标穿透 */
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
-            padding: 6vh 0 12vh 0;
-            pointer-events: none; /* 鼠标穿透，不挡画布 */
-            text-shadow: 0 0 10px rgba(0,0,0,0.5); /* 增加文字阴影，防止看不清 */
+            padding: 4vh 0 8vh 0;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.8);
         }
 
         /* 顶部日期 */
-        .top-date {
-            font-size: 1.2rem;
-            letter-spacing: 8px; /* 字间距拉大，显高级 */
-            color: rgba(255, 255, 255, 0.7);
-            font-weight: 300;
-            animation: fadeIn 3s ease-in-out;
+        .header {
+            text-align: center;
+            animation: fadeInDown 2s ease-out;
+        }
+        
+        .date-text {
+            font-size: 1.1rem;
+            letter-spacing: 6px;
+            color: #aab;
+            margin-bottom: 10px;
         }
 
-        /* 中间名字区域 */
-        .names-row {
+        .love-quote {
+            font-family: 'Zhi Mang Xing', cursive;
+            font-size: 1.8rem;
+            background: linear-gradient(to right, #ffafbd, #ffc3a0);
+            -webkit-background-clip: text;
+            color: transparent;
+            opacity: 0.9;
+        }
+
+        /* 中间名字 (左右护法) */
+        .names-container {
+            position: absolute;
+            top: 45%;
+            width: 90%;
             display: flex;
             justify-content: space-between;
-            width: 85%;
-            max-width: 900px;
-            align-items: center;
-            position: absolute;
-            top: 48%; /* 稍微靠上，避开心尖 */
-            left: 50%;
-            transform: translate(-50%, -50%);
+            transform: translateY(-50%);
+            padding: 0 5%;
         }
 
-        .name-box {
+        .name-card {
             text-align: center;
-            transition: transform 0.3s;
         }
 
-        /* 名字本体 */
         .nickname {
-            font-family: 'Ma Shan Zheng', cursive; /* 书法字体 */
-            font-size: 3.5rem; /* 大气 */
+            font-family: 'Ma Shan Zheng', cursive;
+            font-size: 4rem; /* 超大书法字 */
+            line-height: 1.2;
             white-space: nowrap;
         }
 
-        /* 身份标签/情话 */
-        .role {
-            font-size: 1rem;
-            letter-spacing: 4px;
-            opacity: 0.8;
-            margin-top: 10px;
-            font-weight: 300;
+        .tag {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            opacity: 0.7;
+            margin-top: 5px;
+            border-top: 1px solid rgba(255,255,255,0.3);
+            padding-top: 5px;
+            display: inline-block;
         }
 
-        /* 男生特效：青鸾色 */
-        .boy-style {
+        /* 男主特效：星河蓝 */
+        .boy {
             color: #a1c4fd;
-            text-shadow: 0 0 20px rgba(161, 196, 253, 0.8), 0 0 40px rgba(161, 196, 253, 0.4);
-            animation: floatLeft 5s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(161, 196, 253, 0.8));
+            animation: floatLeft 6s ease-in-out infinite;
         }
 
-        /* 女生特效：桃夭色 */
-        .girl-style {
+        /* 女主特效：霓虹粉 */
+        .girl {
             color: #fbc2eb;
-            text-shadow: 0 0 20px rgba(251, 194, 235, 0.8), 0 0 40px rgba(251, 194, 235, 0.4);
-            animation: floatRight 5s ease-in-out infinite;
+            filter: drop-shadow(0 0 10px rgba(251, 194, 235, 0.8));
+            animation: floatRight 6s ease-in-out infinite;
         }
 
-        /* 底部计时器 (无黑框，纯净版) */
-        .timer-container {
+        /* 底部计时器 */
+        .timer-box {
             text-align: center;
-            margin-bottom: 20px;
-            /* 移除背景色和边框，只保留文字 */
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(4px);
+            padding: 15px 40px;
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.1);
             animation: fadeInUp 2s ease-out;
-        }
-
-        .timer-title {
-            font-size: 1rem;
-            letter-spacing: 5px;
-            margin-bottom: 15px;
-            opacity: 0.8;
-            color: #fff;
+            margin-bottom: 50px; /* 给下方的小人留位置 */
         }
 
         .timer-digits {
-            font-family: 'Noto Serif SC', serif; /* 数字也用宋体，更优雅 */
-            font-size: 2.5rem;
+            font-family: 'Noto Serif SC', serif;
+            font-size: 2.2rem;
             font-weight: 700;
-            /* 渐变流光文字 */
-            background: linear-gradient(to right, #fff, #a1c4fd, #fbc2eb, #fff);
+            background: linear-gradient(to right, #fff, #e0c3fc);
             -webkit-background-clip: text;
             color: transparent;
-            background-size: 300%;
-            animation: shine 5s linear infinite; /* 流光动画 */
-            margin-bottom: 5px;
         }
-        
-        .timer-labels {
-            font-size: 0.9rem;
-            word-spacing: 20px; /* 拉开间距 */
-            opacity: 0.6;
+
+        .timer-label {
+            font-size: 0.8rem;
+            letter-spacing: 5px;
             margin-top: 5px;
+            opacity: 0.6;
         }
 
         /* 动画定义 */
-        @keyframes floatLeft { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-        @keyframes floatRight { 0%,100% { transform: translateY(0); } 50% { transform: translateY(12px); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes floatLeft { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-15px) rotate(2deg); } }
+        @keyframes floatRight { 0%,100% { transform: translateY(0) rotate(2deg); } 50% { transform: translateY(-15px) rotate(-2deg); } }
+        
+        /* [修复] 修正 CSS 动画名空格问题 */
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes shine { 0% { background-position: 0%; } 100% { background-position: 300%; } }
 
         /* 移动端适配 */
         @media (max-width: 768px) {
-            .names-row { 
+            .names-container { 
                 flex-direction: column; 
-                height: 450px; 
+                height: 500px; 
                 justify-content: space-between;
-                top: 50%;
+                align-items: center;
             }
-            .nickname { font-size: 2.8rem; }
-            .timer-digits { font-size: 1.8rem; }
-            .top-date { font-size: 1rem; letter-spacing: 3px; }
+            .nickname { font-size: 3rem; }
+            .timer-digits { font-size: 1.5rem; }
+            .love-quote { font-size: 1.4rem; }
         }
     </style>
 </head>
 <body>
 
-    <canvas id="heartCanvas"></canvas>
+    <canvas id="canvas"></canvas>
 
-    <div class="ui-container">
-        <div class="top-date">始于二〇二五年八月六日</div>
+    <div class="ui-layer">
+        <div class="header">
+            <div class="date-text">THE STORY BEGAN ON 2025.08.06</div>
+            <div class="love-quote">所爱隔山海，山海皆可平</div>
+        </div>
 
-        <div class="names-row">
-            <div class="name-box boy-style">
+        <div class="names-container">
+            <div class="name-card boy">
                 <div class="nickname">椰椰宝宝</div>
-                <div class="role">我的男孩</div>
+                <div class="tag">MY SUPER HERO</div>
             </div>
-            
-            <div class="name-box girl-style">
+            <div class="name-card girl">
                 <div class="nickname">远远宝宝</div>
-                <div class="role">我的世界</div>
+                <div class="tag">MY SWEET HEART</div>
             </div>
         </div>
 
-        <div class="timer-container">
-            <div class="timer-title">我们要一直在一起</div>
-            <div class="timer-digits" id="timer-num">00 : 00 : 00 : 00</div>
-            <div class="timer-labels">天 时 分 秒</div>
+        <div class="timer-box">
+            <div class="timer-digits" id="timer">00 : 00 : 00 : 00</div>
+            <div class="timer-label">天 时 分 秒</div>
         </div>
     </div>
 
     <script>
-        /* =========================================================
-           核心逻辑：流星雨 + 3D粒子爱心 + 计时器
-           =========================================================
-        */
-
-        // 1. 计时器配置
+        // ==========================================
+        //         1. 计时器系统
+        // ==========================================
         const START_DATE = new Date('2025-08-06T13:55:00').getTime();
 
         function updateTimer() {
@@ -204,208 +207,294 @@
             const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-            // 补零美化
-            const d = days < 10 ? "0" + days : days;
-            const h = hours < 10 ? "0" + hours : hours;
-            const m = minutes < 10 ? "0" + minutes : minutes;
-            const s = seconds < 10 ? "0" + seconds : seconds;
+            const d = String(days).padStart(2, '0');
+            const h = String(hours).padStart(2, '0');
+            const m = String(minutes).padStart(2, '0');
+            const s = String(seconds).padStart(2, '0');
 
-            // 分隔符改用全角冒号，更符合中文排版
-            document.getElementById('timer-num').innerText = `${d} ： ${h} ： ${m} ： ${s}`;
+            document.getElementById('timer').innerText = `${d} : ${h} : ${m} : ${s}`;
         }
         setInterval(updateTimer, 1000);
         updateTimer();
 
-
-        // 2. 3D 粒子心脏 + 流星雨渲染引擎
-        const canvas = document.getElementById('heartCanvas');
+        // ==========================================
+        //         2. 绘图引擎 (Canvas)
+        // ==========================================
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
         
         let width, height;
-        let particles = [];
-        let meteors = []; // 流星数组
-        
-        // 核心参数配置
-        const PARTICLE_COUNT = 1000; // 粒子加量，更丰富
-        const HEART_SIZE = 16;       // 心脏更大一点
-        const ROTATION_SPEED = 0.0015; // 旋转稍微慢一点，更优雅
+        let particles = [];     // 爱心粒子
+        let stars = [];         // 背景星星
+        let lanterns = [];      // 孔明灯
+        let meteors = [];       // 流星
+        let tick = 0;           // 时间因子
 
-        // 初始化画布
-        function initCanvas() {
+        // 初始化
+        function init() {
             width = canvas.width = window.innerWidth;
             height = canvas.height = window.innerHeight;
-            // 原点移动到中心
+            createStars();
+            createHeart();
         }
-        
+
+        // [修复] 窗口调整大小时清空所有数组，防止内存泄漏
         window.addEventListener('resize', () => {
-            initCanvas();
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+            
             particles = [];
-            createParticles();
+            stars = [];
+            lanterns = []; // [修复] 清空孔明灯
+            meteors = [];  // [修复] 清空流星
+            
+            createStars();
+            createHeart();
         });
 
-        // 心形方程
-        function getHeartPoint(t) {
-            const x = 16 * Math.pow(Math.sin(t), 3);
-            const y = -(13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t));
-            return { x, y };
+        // --- 类定义 ---
+
+        // 1. 背景星星 (修复了 Alpha 跳变问题)
+        class Star {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height;
+                this.size = Math.random() * 2;
+                this.blinkSpeed = Math.random() * 0.05;
+                this.alpha = Math.random();
+            }
+            draw() {
+                this.alpha += this.blinkSpeed;
+                
+                // [修复] 钳制 alpha 值范围，防止视觉跳跃
+                if (this.alpha > 1 || this.alpha < 0) {
+                    this.blinkSpeed *= -1;
+                    this.alpha = Math.max(0, Math.min(1, this.alpha));
+                }
+
+                ctx.fillStyle = `rgba(255,255,255,${this.alpha})`;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
         }
 
-        // 粒子类
+        // 2. 爱心粒子
         class Particle {
             constructor() {
                 this.reset();
-                // 初始位置随机化，避免一开始是一坨
-                this.y = (Math.random() - 0.5) * height; 
-                this.z = (Math.random() - 0.5) * 100;
             }
-
             reset() {
-                this.t = Math.random() * Math.PI * 2;
-                const pos = getHeartPoint(this.t);
-                // 散布算法：让粒子有些在表面，有些在内部，制造体积感
-                const scatter = 1 - Math.pow(Math.random(), 3); 
+                // 心形公式
+                let t = Math.random() * Math.PI * 2;
+                let x = 16 * Math.pow(Math.sin(t), 3);
+                let y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
                 
-                this.x = pos.x * HEART_SIZE;
-                this.y = pos.y * HEART_SIZE;
-                this.z = (Math.random() - 0.5) * 40; // 厚度
-
-                // 备份原始位置
-                this.baseX = this.x;
-                this.baseY = this.y;
-                this.baseZ = this.z;
-
-                // 颜色：不再随机，而是根据位置决定，营造渐变感
-                // 上半部分粉色多，下半部分青色多
-                if (Math.random() > 0.4) {
-                    this.color = `rgba(251, 194, 235, ${0.4 + Math.random()*0.6})`; // 粉色
-                } else {
-                    this.color = `rgba(161, 196, 253, ${0.4 + Math.random()*0.6})`; // 青色
-                }
+                // 放大与散布
+                let scale = 15; 
+                this.ox = x * scale;
+                this.oy = y * scale;
                 
-                this.size = Math.random() * 2 + 0.5;
+                // 3D 深度散布
+                this.z = (Math.random() - 0.5) * 50;
+                
+                // 颜色
+                this.color = Math.random() > 0.5 ? 
+                    `rgba(161, 196, 253, ${0.5 + Math.random()*0.5})` : // 蓝
+                    `rgba(251, 194, 235, ${0.5 + Math.random()*0.5})`; // 粉
+                
+                this.size = Math.random() * 2 + 1;
             }
-
-            rotate(angle) {
-                const cos = Math.cos(angle);
-                const sin = Math.sin(angle);
-                const x = this.x * cos - this.z * sin;
-                const z = this.x * sin + this.z * cos;
-                const y = this.y;
-                const fov = 400; 
-                const scale = fov / (fov + z);
-                return { x2d: x * scale, y2d: y * scale, scale: scale };
-            }
-
-            update(time) {
-                // 更有力的心跳：双重正弦波模拟真实心跳（咚-咚--咚-咚）
-                // 这种心跳节奏感更强
-                const beat = 1 + (Math.sin(time * 5) + Math.sin(time * 5 + Math.PI)) * 0.04 * Math.pow(Math.sin(time*2.5), 2);
+            
+            update(angle) {
+                // 旋转公式
+                let cos = Math.cos(angle);
+                let sin = Math.sin(angle);
                 
-                this.x = this.baseX * beat;
-                this.y = this.baseY * beat;
-                this.z = this.baseZ * beat;
+                // 绕Y轴旋转
+                let x = this.ox * cos - this.z * sin;
+                let z = this.ox * sin + this.z * cos;
+                let y = this.oy;
+
+                // 心跳效果
+                let beat = 1 + Math.sin(tick * 0.05) * 0.05 * Math.pow(Math.sin(tick * 0.05), 2);
+                x *= beat; y *= beat; z *= beat;
+
+                // 透视投影
+                let fov = 400;
+                let perspective = fov / (fov + z);
+                
+                this.px = x * perspective + width / 2;
+                this.py = y * perspective + height / 2 - 20; // 稍微向上提一点
+                this.ps = this.size * perspective;
+            }
+            
+            draw() {
+                ctx.fillStyle = this.color;
+                ctx.beginPath();
+                ctx.arc(this.px, this.py, this.ps, 0, Math.PI * 2);
+                ctx.fill();
             }
         }
 
-        // 流星类
+        // 3. 孔明灯
+        class Lantern {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = height + Math.random() * 100;
+                this.speed = Math.random() * 0.5 + 0.2;
+                this.size = Math.random() * 10 + 10;
+                this.wobble = Math.random() * Math.PI * 2;
+            }
+            update() {
+                this.y -= this.speed;
+                this.x += Math.sin(this.wobble) * 0.5;
+                this.wobble += 0.02;
+                if (this.y < -50) { // 飞出屏幕重置
+                    this.y = height + 50;
+                    this.x = Math.random() * width;
+                }
+            }
+            draw() {
+                // 灯身
+                let g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size);
+                g.addColorStop(0, 'rgba(255, 180, 50, 0.8)'); // 核心亮橙色
+                g.addColorStop(0.4, 'rgba(255, 100, 50, 0.4)');
+                g.addColorStop(1, 'rgba(255, 50, 0, 0)');
+                
+                ctx.fillStyle = g;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // 4. 流星
         class Meteor {
             constructor() {
                 this.reset();
             }
             reset() {
-                this.x = Math.random() * width;
-                this.y = -100; // 从屏幕上方开始
-                this.speed = Math.random() * 5 + 2;
-                this.len = Math.random() * 80 + 20; // 尾巴长度
-                this.angle = Math.PI / 4 + (Math.random() - 0.5) * 0.2; // 稍微倾斜
-                this.opacity = Math.random() * 0.5 + 0.1;
+                this.x = Math.random() * width + width; // 从右侧开始
+                this.y = Math.random() * height/2;
+                this.speed = Math.random() * 10 + 5;
+                this.len = Math.random() * 100 + 50;
+                this.opacity = 0;
+                this.state = 0; // 0:waiting, 1:falling
+                this.wait = Math.random() * 200;
             }
             update() {
-                this.x -= this.speed * Math.cos(this.angle); // 向左下划过
-                this.y += this.speed * Math.sin(this.angle);
-                if (this.x < -100 || this.y > height + 100) {
-                    this.reset();
+                if (this.state === 0) {
+                    this.wait--;
+                    if (this.wait <= 0) {
+                        this.state = 1;
+                        this.opacity = 1;
+                    }
+                } else {
+                    this.x -= this.speed;
+                    this.y += this.speed * 0.5;
+                    this.opacity -= 0.01;
+                    if (this.opacity <= 0) this.reset();
                 }
             }
             draw() {
-                ctx.save();
-                ctx.translate(width/2, height/2); // 抵消全局偏移，流星是全屏的
-                // 既然我们在全局做了 translate，这里得反算回去或者暂时恢复 context
-                // 为了简单，我们直接在全局坐标系下画，不用 translate
-                ctx.restore(); 
-                
+                if (this.state === 0) return;
+                ctx.strokeStyle = `rgba(255,255,255,${this.opacity})`;
+                ctx.lineWidth = 2;
                 ctx.beginPath();
-                // 绘制流星尾巴（渐变）
-                const gradient = ctx.createLinearGradient(this.x, this.y, this.x + this.len*Math.cos(this.angle), this.y - this.len*Math.sin(this.angle));
-                gradient.addColorStop(0, `rgba(255,255,255,${this.opacity})`);
-                gradient.addColorStop(1, `rgba(255,255,255,0)`);
-                
-                ctx.strokeStyle = gradient;
-                ctx.lineWidth = 1.5;
                 ctx.moveTo(this.x, this.y);
-                // 逆着运动方向画尾巴
-                ctx.lineTo(this.x + this.len, this.y - this.len); 
+                ctx.lineTo(this.x + this.len, this.y - this.len * 0.5);
                 ctx.stroke();
-
-                // 恢复全局 translate 给爱心用
-                ctx.save();
-                ctx.translate(width/2, height/2);
             }
         }
 
-        function createParticles() {
-            for (let i = 0; i < PARTICLE_COUNT; i++) {
-                particles.push(new Particle());
-            }
-            // 创建流星
-            for (let i = 0; i < 5; i++) {
-                meteors.push(new Meteor());
-            }
+        // --- 批量创建 ---
+        function createStars() {
+            for(let i=0; i<150; i++) stars.push(new Star());
+            for(let i=0; i<15; i++) lanterns.push(new Lantern());
+            for(let i=0; i<3; i++) meteors.push(new Meteor());
+        }
+        function createHeart() {
+            for(let i=0; i<800; i++) particles.push(new Particle());
         }
 
-        let angle = 0;
-        initCanvas();
-        createParticles();
+        // --- 绘制情侣剪影 (Canvas 画图) ---
+        function drawCouple() {
+            // 设置坐标到底部中心
+            let cx = width / 2;
+            let cy = height - 50; // 稍微靠上一点
 
+            // 画一个小山坡
+            ctx.fillStyle = '#05070a'; // 深色剪影
+            ctx.beginPath();
+            ctx.ellipse(cx, height, width/1.5, 100, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // 两个小人的剪影
+            ctx.fillStyle = '#111';
+            
+            // 男生 (左)
+            ctx.beginPath();
+            ctx.arc(cx - 25, cy - 40, 12, 0, Math.PI*2); // 头
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(cx - 25, cy - 28);
+            ctx.lineTo(cx - 40, cy + 10); // 背
+            ctx.lineTo(cx - 10, cy + 10); // 腿
+            ctx.lineTo(cx - 15, cy - 28);
+            ctx.fill();
+
+            // 女生 (右, 靠着男生)
+            ctx.beginPath();
+            ctx.arc(cx + 15, cy - 35, 11, 0, Math.PI*2); // 头
+            ctx.fill();
+            ctx.beginPath();
+            ctx.moveTo(cx + 15, cy - 24);
+            ctx.lineTo(cx + 30, cy + 10); // 背
+            ctx.lineTo(cx, cy + 10); // 腿
+            ctx.lineTo(cx + 5, cy - 24);
+            ctx.fill();
+
+            // 两人手牵手的感觉
+            ctx.beginPath();
+            ctx.arc(cx - 5, cy + 5, 5, 0, Math.PI*2);
+            ctx.fill();
+        }
+
+        // --- 主循环 ---
         function animate() {
-            // 1. 清除画布（带拖尾效果）
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.05)'; // 透明度越低拖尾越长
-            // 注意：因为 context 已经 translate 到了中心，所以清空矩形坐标要调整
-            ctx.fillRect(-width/2, -height/2, width, height);
+            // [修复] 绝对重置坐标系，防止长时间运行卡死
+            ctx.setTransform(1, 0, 0, 1, 0, 0); 
+            
+            // 清空画布 (带微弱拖尾)
+            ctx.fillStyle = 'rgba(10, 15, 25, 0.2)';
+            ctx.fillRect(0, 0, width, height);
 
-            const time = new Date().getTime() * 0.001;
-            angle += ROTATION_SPEED;
+            tick++;
 
-            // 2. 绘制流星 (流星在背景层)
-            // 需要先把坐标系恢复到左上角，画完再移回来
-            ctx.restore(); 
-            meteors.forEach(m => {
-                m.update();
-                m.draw();
-            });
-            ctx.save();
-            ctx.translate(width/2, height/2);
+            // 1. 画背景星星
+            stars.forEach(s => s.draw());
 
+            // 2. 画流星
+            meteors.forEach(m => { m.update(); m.draw(); });
 
-            // 3. 绘制爱心粒子
+            // 3. 画孔明灯 (在爱心后面)
+            lanterns.forEach(l => { l.update(); l.draw(); });
+
+            // 4. 画爱心
+            let angle = tick * 0.003; // 旋转角度
             particles.forEach(p => {
-                p.update(time);
-                const pos = p.rotate(angle);
-                
-                ctx.beginPath();
-                ctx.fillStyle = p.color;
-                // 粒子大小随透视变化，且带一点闪烁
-                const size = p.size * pos.scale * (0.8 + Math.random()*0.4); 
-                ctx.arc(pos.x2d, pos.y2d, size, 0, Math.PI * 2);
-                ctx.fill();
+                p.update(angle);
+                p.draw();
             });
+
+            // 5. 画情侣剪影 (永远在最前)
+            drawCouple();
 
             requestAnimationFrame(animate);
         }
 
-        // 初始化第一次
-        ctx.save(); // 保存初始状态
-        ctx.translate(width/2, height/2);
+        init();
         animate();
 
     </script>
